@@ -216,6 +216,15 @@ class PiinkkListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by PiinkkParser#bloque1.
+    def enterBloque1(self, ctx:PiinkkParser.Bloque1Context):
+        pass
+
+    # Exit a parse tree produced by PiinkkParser#bloque1.
+    def exitBloque1(self, ctx:PiinkkParser.Bloque1Context):
+        pass
+
+
     # Enter a parse tree produced by PiinkkParser#estatuto0.
     def enterEstatuto0(self, ctx:PiinkkParser.Estatuto0Context):
         pass

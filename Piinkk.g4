@@ -7,7 +7,7 @@ grammar Piinkk;
 prog: programita0 ';' vars0? fun0* body0 EOF;
 programita0: PROGRAM PROGRAMID ;
 
-type0: INT | FLOAT | BOOL;
+type0: INT | FLOAT;
 
 array0: ID '[' NUMBER ']';
 
@@ -39,12 +39,14 @@ factor0: var0;
 factor1: ('(' expresion0 ')') | var0;
 
 bloque0: '{' estatuto0* '}';
+bloque1: '{' estatuto0* return0? '}';
+
+
 estatuto0: asignacion0
             | if0
             | while0
             | for0
             | escritura0
-            | return0
             | lecturaInt0
             | escritura0
             | funCall;
@@ -62,12 +64,12 @@ lecturaInt0: READ '(' ID ')' ';';
 
 return0: RETURN '(' exp0 ')' ';' ;
 
-typeFun0: (type0 | VOID);
+typeFun0: (type0 | VOID) | BOOL;
 fun0: FUNCTION fun1 vars0? funContent0;
 fun1: typeFun0 ':' ID '(' (fun2)? ')';
 fun2: fun3 (',' fun3)* ;
 fun3: type0 ':' var1;
-funContent0: bloque0;
+funContent0: bloque1;
 
 funCall: funCall0 ';';
 funCall0: ID '(' funCall1 ')';

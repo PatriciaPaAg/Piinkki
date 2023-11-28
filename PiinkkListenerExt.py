@@ -1,21 +1,21 @@
 from antlr4 import *
 from PiinkkListener import PiinkkListener
-from piinkkLoader import piinkkLoader
-from MemoryManage import memoryManage
+from PiinkkLoader import piinkkLoader
+from MemoryManager import memoryManager
 from semanticCube import *
 
 class PiinkkListenerExt(PiinkkListener):
 
     # Enter a parse tree produced by PiinkkParser#prog.
     def enterProg(self, ctx):
-        print(memoryManage.globals)
+        print(memoryManager.globals)
         # print(memoryManage.globals['int']['iniAdd'])
         # print(memoryManage.globals['int']['finAdd'])
         # print(memoryManage.globals['int']['count'])
 
     # Exit a parse tree produced by PiinkkParser#prog.
     def exitProg(self, ctx):
-        piinkkLoader.symbol_table = {}
+        # piinkkLoader.symbol_table = {}
         piinkkLoader.addQuadruple(['END', None, None, None])
         print(f'\t\t\tEND\t\t\tEND')
         
@@ -84,7 +84,7 @@ class PiinkkListenerExt(PiinkkListener):
         end = PJumps.pop()
         #print('jump')
         #print(end)
-        piinkkLoader.quadruples[end].append(len(piinkkLoader.quadruples) + 1)
+        piinkkLoader.quadruples[end].append(len(piinkkLoader.quadruples))
         print(f'\t\t\t\t\t\t{piinkkLoader.quadruples[end]}')
 
 
@@ -98,7 +98,7 @@ class PiinkkListenerExt(PiinkkListener):
         #print('jump')
         #print(inCase_false)
         PJumps.append(len(piinkkLoader.quadruples) - 1)
-        piinkkLoader.quadruples[inCase_false].append(len(piinkkLoader.quadruples) + 1)
+        piinkkLoader.quadruples[inCase_false].append(len(piinkkLoader.quadruples))
         print(f'\t\t\t\t\t\t{piinkkLoader.quadruples[inCase_false]}')
 
     # Exit a parse tree produced by PiinkkParser#else0.
@@ -108,7 +108,7 @@ class PiinkkListenerExt(PiinkkListener):
 
     # Enter a parse tree produced by PiinkkParser#while0.
     def enterWhile0(self, ctx):
-        piinkkLoader.jump_stack.append(len(piinkkLoader.quadruples) + 1)
+        piinkkLoader.jump_stack.append(len(piinkkLoader.quadruples))
 
     # Exit a parse tree produced by PiinkkParser#while0.
     def exitWhile0(self, ctx):
@@ -140,7 +140,7 @@ class PiinkkListenerExt(PiinkkListener):
         #print(f'returne -> {returne}')
         piinkkLoader.addQuadruple(['GOTO', None, None, returne])
         print(f'\t\t\tGOTO\t\t\t{returne}\t\t\tGOTO\t\t\t{returne}\t\t')
-        piinkkLoader.quadruples[end].append(len(piinkkLoader.quadruples) + 1)
+        piinkkLoader.quadruples[end].append(len(piinkkLoader.quadruples))
         print(f'\t\t\t\t\t\t{piinkkLoader.quadruples[end]}')
 
 
@@ -156,21 +156,27 @@ class PiinkkListenerExt(PiinkkListener):
     # Enter a parse tree produced by PiinkkParser#var0.
     def enterVar0(self, ctx):
         var_info = ctx.getText()
-        piinkkLoader.operand_stack.append(var_info)
         # AQUI SE PUEDE PONER LO DE LOS NUMEROS ENTEROS O FLOAT
+        print(f'varinfo{var_info}')
         if piinkkLoader.isNumber(var_info) == 'int':
+            var_info = int(var_info)
             piinkkLoader.type_stack.append('int')
             if piinkkLoader.getAddress(var_info) == None:
-                number_address = memoryManage.getNewAddress('ctes', 'int')
+                number_address = memoryManager.getNewAddress('ctes', 'int')
+                memoryManager.memory[number_address] = var_info
                 piinkkLoader.symbol_table['cte']['variables'][var_info] = {'type': 'int', 'address': number_address}
         elif piinkkLoader.isNumber(var_info) == 'float':
             piinkkLoader.type_stack.append('float')
+            var_info = float(var_info)
             if piinkkLoader.getAddress(var_info) == None:
-                number_address = memoryManage.getNewAddress('ctes', 'float')
+                number_address = memoryManager.getNewAddress('ctes', 'float')
+                memoryManager.memory[number_address] = var_info
                 piinkkLoader.symbol_table['cte']['variables'][var_info] = {'type': 'float', 'address': number_address}
         else:
             var_type = piinkkLoader.getType(var_info)
             piinkkLoader.type_stack.append(var_type)
+        piinkkLoader.operand_stack.append(var_info)
+
         #print('Operand Stack')
         #print(piinkkLoader.operand_stack)
 
@@ -202,7 +208,7 @@ class PiinkkListenerExt(PiinkkListener):
             else:
                 var_name = var_info
                 piinkkLoader.variableCheck(var_name)
-                address = memoryManage.getNewAddress(scope, vars_type)
+                address = memoryManager.getNewAddress(scope, vars_type)
                 #print(f'AAAAAAAAADDDDDDDDREEEEEEEEEESSSSSSSS {address}, {var_name}, {vars_type} \t ')
                 piinkkLoader.symbol_table[scope]['variables'][var_name] = {'type': vars_type, 'address': address}            
 
@@ -258,7 +264,7 @@ class PiinkkListenerExt(PiinkkListener):
                 PilaT.append(result_type)
                 right_address = piinkkLoader.getAddress(right_operand)
                 left_address = piinkkLoader.getAddress(left_operand)
-                temporal_address = memoryManage.getNewAddress('temp', result_type)
+                temporal_address = memoryManager.getNewAddress('temp', result_type)
                 piinkkLoader.symbol_table['temp']['variables'][temporal] = {'type': result_type, 'address': temporal_address}  
                 piinkkLoader.addQuadruple([operator, left_address, right_address, temporal_address])
                 print(f'\t\t\t{operator}\t{left_operand}\t{right_operand}\t{temporal}\t\t\t{operator}\t{left_address}\t{right_address}\t{temporal_address}\t\t\t{operator}\t{left_type}\t{right_type}\t{result_type}')
@@ -300,7 +306,7 @@ class PiinkkListenerExt(PiinkkListener):
                 PilaT.append(result_type)
                 right_address = piinkkLoader.getAddress(right_operand)
                 left_address = piinkkLoader.getAddress(left_operand)
-                temporal_address = memoryManage.getNewAddress('temp', result_type)
+                temporal_address = memoryManager.getNewAddress('temp', result_type)
                 piinkkLoader.symbol_table['temp']['variables'][temporal] = {'type': result_type, 'address': temporal_address}
                 piinkkLoader.addQuadruple([operator, left_address, right_address, temporal_address])
                 print(f'\t\t\t{operator}\t{left_operand}\t{right_operand}\t{temporal}\t\t\t{operator}\t{left_address}\t{right_address}\t{temporal_address}\t\t\t{operator}\t{left_type}\t{right_type}\t{result_type}')
@@ -342,7 +348,7 @@ class PiinkkListenerExt(PiinkkListener):
                 PilaT.append(result_type)
                 right_address = piinkkLoader.getAddress(right_operand)
                 left_address = piinkkLoader.getAddress(left_operand)
-                temporal_address = memoryManage.getNewAddress('temp', result_type)
+                temporal_address = memoryManager.getNewAddress('temp', result_type)
                 piinkkLoader.symbol_table['temp']['variables'][temporal] = {'type': result_type, 'address': temporal_address}  
                 piinkkLoader.addQuadruple([operator, left_address, right_address, temporal_address])
                 print(f'\t\t\t{operator}\t{left_operand}\t{right_operand}\t{temporal}\t\t\t{operator}\t{left_address}\t{right_address}\t{temporal_address}\t\t\t{operator}\t{left_type}\t{right_type}\t{result_type}')
@@ -431,7 +437,7 @@ class PiinkkListenerExt(PiinkkListener):
         piinkkLoader.addQuadruple(['read', None, None, leido])
         print(f'\t\t\tread\t\t\t{leido}')
         piinkkLoader.variableCheck(leido)
-        leido_address = memoryManage.getNewAddress(piinkkLoader.current_scope, 'int')
+        leido_address = memoryManager.getNewAddress(piinkkLoader.current_scope, 'int')
         piinkkLoader.symbol_table[piinkkLoader.current_scope]['variables'][leido] = {'type': 'int', 'address': leido_address}
         piinkkLoader.pendientes.append('cambiar enterLectura a constantes enteras')
 
@@ -448,7 +454,12 @@ class PiinkkListenerExt(PiinkkListener):
     def exitReturn0(self, ctx):
         value = piinkkLoader.operand_stack.pop()
         value_type = piinkkLoader.type_stack.pop()
+        expected_type = piinkkLoader.symbol_table['global']['variables'][piinkkLoader.current_scope]['type']
+        if value_type != expected_type:
+            piinkkLoader.stopExecution(f'Type mismatch: expecting {expected_type}')
         value_address = piinkkLoader.getAddress(value)
+        returnValAddress = piinkkLoader.symbol_table['global']['variables'][piinkkLoader.current_scope]['address']
+        memoryManager.memory[returnValAddress] = value
         piinkkLoader.addQuadruple(['RETURN', None, None, value_address])
         print(f'\t\t\tRETURN\t\t\t{value}\t\t\tRETURN\t\t\t{value_address}')
 
@@ -469,8 +480,8 @@ class PiinkkListenerExt(PiinkkListener):
         print(f'\t\t\tENDFunc\t\t\t\t\t\tENDFunc')
         piinkkLoader.symbol_table[scope]['variables'] = {}
         piinkkLoader.set_current_scope('global')
-        memoryManage.resetCountLocal()
-        memoryManage.resetCountTemp()
+        memoryManager.resetCountLocal()
+        memoryManager.resetCountTemp()
 
 
     # Enter a parse tree produced by PiinkkParser#fun1.
@@ -481,7 +492,11 @@ class PiinkkListenerExt(PiinkkListener):
         fun_type, fun_name = fun_info[0], fun_info[1].split('(')[0]
         piinkkLoader.functionCheck(fun_name)
         tempCalc = piinkkLoader.temporal
-        piinkkLoader.symbol_table[fun_name] = {'type': fun_type, 'start': 0,'variables': {}, 'signature': [], 'noParam': 0, 'noVar': 0, 'noTemp': tempCalc}
+        piinkkLoader.symbol_table[fun_name] = {'type': fun_type, 'start': 0,'variables': {}, 'signature': [], 'noParam': 0, 'noVar': 0, 'noTemp': tempCalc, 'returnAddress': None, 'paramAddress' : []}
+        if fun_type != 'void':
+            address = memoryManager.getNewAddress('global', fun_type)
+            piinkkLoader.symbol_table['global']['variables'][fun_name] = {'type': fun_type, 'address': address} 
+            piinkkLoader.symbol_table[fun_name]['returnAddress'] = address
         piinkkLoader.set_current_scope(fun_name)
 
     # Exit a parse tree produced by PiinkkParser#fun1.
@@ -489,7 +504,7 @@ class PiinkkListenerExt(PiinkkListener):
         scope = piinkkLoader.current_scope
         signature = piinkkLoader.symbol_table[scope]['signature']
         piinkkLoader.symbol_table[scope]['noParam'] = len(signature)
-        
+
 
     # Enter a parse tree produced by PiinkkParser#fun2.
     def enterFun2(self, ctx):
@@ -512,12 +527,14 @@ class PiinkkListenerExt(PiinkkListener):
             piinkkLoader.symbol_table[scope]['variables'][var_name] = {'type': var_type, 'size': var_arr_size}
             piinkkLoader.symbol_table[scope]['signature'].append(var_type)
         else:
+            print(f'paramether infooo {var_info}')
             var_name = var_info
             piinkkLoader.variableCheck(var_name)
-            address = memoryManage.getNewAddress(scope, var_type)
+            address = memoryManager.getNewAddress(scope, var_type)
             #print(f'AAAAAAAAADDDDDDDDREEEEEEEEEESSSSSSSS {address}, {var_name}, {var_type} \t ')     
             piinkkLoader.symbol_table[scope]['variables'][var_name] = {'type': var_type, 'address': address}
             piinkkLoader.symbol_table[scope]['signature'].append(var_type)
+            piinkkLoader.symbol_table[scope]['paramAddress'].append(address)
 
     # Exit a parse tree produced by PiinkkParser#fun3.
     def exitFun3(self, ctx):
@@ -530,7 +547,7 @@ class PiinkkListenerExt(PiinkkListener):
         nVar = len(piinkkLoader.symbol_table[scope]['variables'])
         nParam = piinkkLoader.symbol_table[scope]['noParam']
         piinkkLoader.symbol_table[scope]['noVar'] = nVar - nParam
-        piinkkLoader.symbol_table[scope]['start'] = len(piinkkLoader.quadruples) + 1
+        piinkkLoader.symbol_table[scope]['start'] = len(piinkkLoader.quadruples)
         # print(piinkkLoader.symbol_table[scope]['start'])
 
     # Exit a parse tree produced by PiinkkParser#funContent0.
@@ -566,7 +583,7 @@ class PiinkkListenerExt(PiinkkListener):
         piinkkLoader.addQuadruple(['GOSUB', fun, None, iniAddr])
         print(f'\t\t\tGOSUB\t{fun}\t\t{iniAddr}\t\t\tGOSUB\t{fun}\t\t{iniAddr}')
         piinkkLoader.set_param_count(0)
-        fun = ''        
+        piinkkLoader.current_fun = ''     
 
 
     # Enter a parse tree produced by PiinkkParser#funCall1.
@@ -594,17 +611,15 @@ class PiinkkListenerExt(PiinkkListener):
         # print(parameter_count)
         if parameter_count > len(signature):
             piinkkLoader.stopExecution(f'Too many arguments')
+
         parameter_type = piinkkLoader.symbol_table[fun]['signature'][parameter_count - 1]
         argument_address = piinkkLoader.getAddress(argument)
-        # print('ARGUMEEEEEENT TYPEEEEEEE')
-        # print(argument)
-        # print(argument_type)
-        # print('PARAAAAAAMMMM TYPEEEEEEE')
-        # print(parameter_count)
-        # print(parameter_type)
+        parameter_address = piinkkLoader.symbol_table[fun]['paramAddress'][parameter_count - 1]
         if parameter_type == argument_type:
-            piinkkLoader.addQuadruple(['PARAM', argument, None, f'par{parameter_count}'])
-            print(f'\t\t\tPARAM\t{argument}\t\tpar{parameter_count}\t\t\tPARAM\t{argument_address}\t\tpar{parameter_count}')
+            print(f'{argument_address} ')
+            print(f'AAAAAAAADDDDDDDDRRRRRRREEEEEEEEEEEEEEEESSSSSSSS DEL PARAMETER: {argument} -> {argument_address}')
+            piinkkLoader.addQuadruple(['PARAM', argument_address, None, parameter_address])
+            print(f'\t\t\tPARAM\t{argument}\t\tpar{parameter_count}\t\t\tPARAM\t{argument_address}\t\t{parameter_address}')
         else:
             piinkkLoader.stopExecution(f'Function signature mismatch: expecting {parameter_type}')
 
@@ -622,7 +637,7 @@ class PiinkkListenerExt(PiinkkListener):
 
     # Enter a parse tree produced by PiinkkParser#body0.
     def enterBody0(self, ctx):
-        piinkkLoader.quadruples[0].append(len(piinkkLoader.quadruples) + 1)
+        piinkkLoader.quadruples[0].append(len(piinkkLoader.quadruples))
         print(f'\t\t\t\t\t\t{piinkkLoader.quadruples[0]}')
         piinkkLoader.clearStacks()
 

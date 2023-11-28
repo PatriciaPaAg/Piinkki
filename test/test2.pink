@@ -4,12 +4,18 @@ VARS
     int: x, y, a, b;
     float: z;
 
-function int: uno(int: g, bool: bo, float: flo)
+function int: uno(int: g, float: flo)
 VARS
     int: i;
     float: f;
-    bool: be;
 {
+    g = 111111;
+    flo = 3.33333;
+    i = 1;
+    x = 1;
+    y = 2;
+    a = 5;
+    b = 3;
     a = a + b * a;
     write(a, b, a + b);
     return(a);
@@ -17,29 +23,34 @@ VARS
 
 function void: dos(int: c, int: d, float: g)
 VARS
-    int: i;
+    int: i, bee;
     float: f;
-    bool: bee;
 {
     i = b;
+    f = 500.00;
     while(i > 0) do{
         a = a + b * i + b;
-        uno(i * 2, bee, f);
+        uno(i * 2, f);
         write(a);
         i = i - 1;
     }
+    c = 234;
     c = i + a - c;
 }
 
 main(){
-    <3 a = 4;
+    write('porfa funciona');
+    a = 4;
     if(a == 3){
         b = 5 + 4 + 7 + 0 + 2;
+        write(b);
     }else {
         z = 6 / a;
+        write(z);
     }
 
     b = a + 1;
+    x = 67;
     write(a, b);
     z = 3.14;
     dos(a + b * 2, b, z * 3);

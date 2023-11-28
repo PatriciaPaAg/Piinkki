@@ -3,13 +3,13 @@ from antlr4 import *
 from PiinkkLexer import PiinkkLexer
 from PiinkkListenerExt import PiinkkListenerExt
 from PiinkkParser import PiinkkParser
-from piinkkLoader import piinkkLoader
+from PiinkkLoader import piinkkLoader
 from piinkkErrorListener import PiinkkErrorListener
-from MemoryManage import memoryManage
-from PiinkkVM import PiinkkVM
+from MemoryManager import memoryManager
+from VirtualMachinePiinkk import PiinkkVM
 
 # Load the file
-filename = 'test2.pink'
+filename = 'test/test2.pink'
 test = ''
 with open(filename, 'r') as file:
     test = file.readlines()
@@ -41,19 +41,18 @@ try:
     ParseTreeWalker().walk(listener, tree)
 
     # Print the results
-    print('\nPrints del main')
-    print(piinkkLoader.operand_stack)
-    print(piinkkLoader.type_stack)
-    print(piinkkLoader.operator_stack)
+    # print('\nPrints del main')
+    # print(piinkkLoader.operand_stack)
+    # print(piinkkLoader.type_stack)
+    # print(piinkkLoader.operator_stack)
     # contador = 0
     # for element in piinkkLoader.quadruples:
     #     print(piinkkLoader.quadruples[contador])
     #     contador += 1
-    print(piinkkLoader.symbol_table)
+    # print(piinkkLoader.symbol_table)
     # print(piinkkLoader.quadruples)
     quadruples = piinkkLoader.quadruples
-    virtualMachine = PiinkkVM()
-    virtualMachine.quadruples = quadruples
+    virtualMachine = PiinkkVM(quadruples)
     virtualMachine.run()
     # PiinkkVM.execute(quadruples)
 
