@@ -1,0 +1,48 @@
+Program Pelos;
+VARS
+int: x,y,z, arreg[2];
+float: val;
+bool: miVBool;
+
+function void: fact (int: a, int: b)
+VARS
+    int: c, d;
+    int: e;
+    bool: bo;
+    int: sip, nop;
+{
+    x = b + c - d - 1 * e * a;
+    bo = sip + c + d * e < nop * e + c + d ;
+    write(sip + c + d, nop + sip);
+    write('HOLA MUNDOTE ROSA', 'sigues ahi?');
+    read(p);
+}
+
+<3 this is a comment
+
+function void: fibo (float: f, int: g, bool: arrBool[2])
+VARS
+    int: h, i;
+    int: j, k;
+{
+    f = g + h - i / 3.14 * j + k;
+    if(x == y){
+        return(j);
+    }else{
+        return(f * g - i);
+    }
+    <3 if(z){}
+}
+
+main(){
+    while(x != y) do{
+        val = z + x - y / 3.14 * x + z;
+    }
+    <3 fibo(val, x, miVBool)
+    fact(y, x)
+    write('FIN');
+}
+
+
+
+

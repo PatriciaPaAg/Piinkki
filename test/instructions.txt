@@ -1,0 +1,3 @@
+// Everytime something changes in the grammar, run:
+// antlr4 -no-listener Piinkk.g4 (yano)
+//  antlr4 -v 4.13.1 -Dlanguage=Python3 Piinkk.g4 

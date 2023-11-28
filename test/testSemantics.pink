@@ -1,0 +1,18 @@
+Program Pelos;
+VARS
+    int i,j,k, arregl[10];
+    float val;
+
+function int fact (int j, float f)
+VARS
+    int i;
+    float i;
+{
+    i = j + (p - j * 2 + j);
+    if(j == 1){
+        return(j);
+    }else{
+return(j * (j-1));
+    }
+}
+main(){}
